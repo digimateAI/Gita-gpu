@@ -1,0 +1,33 @@
+# Secrets
+API_KEY.txt
+*.env
+.env*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Model weights and training artifacts (kept locally, not in git)
+gita_model_output/
+unsloth_compiled_cache/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

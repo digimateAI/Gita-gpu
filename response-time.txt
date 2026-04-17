@@ -1,0 +1,5 @@
+response time in local machine: less than 20s
+
+response time in 24 gb runpod (normal): 50s to 1.5m
+
+response time in 24 gb runpod (pro): less than 20s

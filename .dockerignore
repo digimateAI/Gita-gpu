@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+unsloth_compiled_cache/
+gita_model_output/checkpoint-*
+gita_model_output/README.md
+gita_chatbot.py
+build_handler.py
+.git/
+.gitignore
+*.md
