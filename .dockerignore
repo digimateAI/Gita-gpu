@@ -6,6 +6,8 @@ gita_model_output/checkpoint-*
 gita_model_output/README.md
 gita_chatbot.py
 build_handler.py
+test_guardrails.py
 .git/
 .gitignore
 *.md
+

@@ -32,6 +32,7 @@ logging.LogRecord.getMessage = _safe_getMessage
 import torch
 import runpod
 from typing import List
+from guardrails import check_prompt
 
 import transformers
 transformers.logging.set_verbosity_error()
@@ -64,6 +65,9 @@ DEFAULT_GEN_CONFIG = {
     "repetition_penalty": 1.1,
     "do_sample": True,
 }
+
+# Number of past conversation turns to include as context (short-term memory)
+MAX_HISTORY_TURNS = 5
 
 IM_START = "<" + "|im_start|" + ">"
 IM_END = "<" + "|im_end|" + ">"
@@ -144,7 +148,7 @@ def format_prompt(user_input, history=None):
     prompt = f"{IM_START}system\n{SYSTEM_PROMPT}{IM_END}\n"
 
     if history:
-        for turn in history[-2:]:
+        for turn in history[-MAX_HISTORY_TURNS:]:
             prompt += f"{IM_START}user\n{turn['user']}{IM_END}\n"
             prompt += f"{IM_START}assistant\n{turn['assistant']}{IM_END}\n"
 
@@ -188,6 +192,15 @@ def handler(job):
         user_prompt = job_input.get("prompt", "")
         if not user_prompt:
             return {"error": "No 'prompt' provided in input."}
+
+        # --- Guardrail check: block inappropriate / off-topic content ---
+        guard = check_prompt(user_prompt)
+        if not guard["safe"]:
+            return {
+                "error": "Your message could not be processed.",
+                "reason": guard.get("reason", "Content policy violation."),
+            }
+        # --- End guardrail check ---
 
         history = job_input.get("history", [])
 

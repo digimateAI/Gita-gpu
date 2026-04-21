@@ -14,6 +14,7 @@ import logging
 from typing import List, Optional
 from unsloth import FastLanguageModel
 from transformers import TextStreamer, StoppingCriteria, StoppingCriteriaList
+from guardrails import check_prompt
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -33,6 +34,9 @@ GEN_CONFIG = {
     "repetition_penalty": 1.1, 
     "do_sample": True,
 }
+
+# Number of past conversation turns to include as context (short-term memory)
+MAX_HISTORY_TURNS = 5
 
 # Master Guru Prompt: Flexible and Responsive Teacher
 SYSTEM_PROMPT = (
@@ -121,8 +125,8 @@ class GitaGuruBot:
         """Formats the conversation history and current input."""
         prompt = f"<|im_start|>system\n{SYSTEM_PROMPT}<|im_end|>\n"
         
-        # Keep history short to prevent repetition loops
-        for turn in self.history[-2:]:
+        # Keep last MAX_HISTORY_TURNS turns to maintain context without overflow
+        for turn in self.history[-MAX_HISTORY_TURNS:]:
             prompt += f"<|im_start|>user\n{turn['user']}<|im_end|>\n"
             prompt += f"<|im_start|>assistant\n{turn['assistant']}<|im_end|>\n"
             
@@ -205,6 +209,13 @@ def run_chat():
             user_input = input("You: ").strip()
             if not user_input: continue
             if user_input.lower() in ['exit', 'quit']: break
+
+            # --- Guardrail check ---
+            guard = check_prompt(user_input)
+            if not guard["safe"]:
+                print(f"\n🚫 Gita Guru: {guard.get('reason', 'I cannot address that request.')}\n")
+                continue
+            # --- End guardrail check ---
 
             print("\nGita Guru: ", end="", flush=True)
             bot.generate(user_input, streaming=True)

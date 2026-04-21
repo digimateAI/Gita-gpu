@@ -38,8 +38,9 @@ COPY gita_model_output/lora_adapters/tokenizer_config.json /model/tokenizer_conf
 COPY gita_model_output/lora_adapters/special_tokens_map.json /model/special_tokens_map.json
 COPY gita_model_output/lora_adapters/chat_template.jinja /model/chat_template.jinja
 
-# ---- Copy handler ----
+# ---- Copy handler and guardrails ----
 COPY handler.py /app/handler.py
+COPY guardrails.py /app/guardrails.py
 
 # ---- Environment ----
 ENV MODEL_PATH="/model"
